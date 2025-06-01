@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kółko i Krzyżyk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            background: #F5F1E9;
+            color: #1B1F3B;
+            font-family: Georgia, serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 420px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 32px #0001;
+            padding: 24px 12px 32px 12px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .theme-switcher {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .theme-btn {
+            padding: 2px 2px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: #D9D2C8;
+            color: #1B1F3B;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px #0001;
+        }
+        .theme-btn.active {
+            background: #BFA46F;
+            color: #fff;
+            box-shadow: 0 2px 8px #0002;
+        }
+        .theme-btn img {
+            width: 22px;
+            height: 22px;
+            display: block;
+            margin: 0 auto;
+            pointer-events: none;
+        }
+        .mode-btn, .level-btn {
+            margin: 0 6px 12px 6px;
+            padding: 8px 18px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            background: #D9D2C8;
+            color: #1B1F3B;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mode-btn.active, .level-btn.active {
+            background: #BFA46F;
+            color: #fff;
+        }
+        #message {
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 18px;
+            min-height: 1.5em;
+        }
+        .board-wrap {
+            width: 260px;
+            margin: 0 auto 20px auto;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            aspect-ratio: 1/1;
+        }
+        .cell {
+            width: 100%;
+            aspect-ratio: 1/1;
+            font-size: 2.5em;
+            font-family: 'Times New Roman', serif;
+            background: #D9D2C8;
+            color: #1B1F3B;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cell:hover:enabled {
+            background: #BFA46F;
+            color: #fff;
+        }
+        .cell.winner {
+            background: #BFA46F !important;
+            color: #fff !important;
+        }
+        .reset-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 32px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            background: #BFA46F;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        /* Ciemny motyw */
+        body.dark {
+            background: #1B1F3B;
+            color: #F5F1E9;
+        }
+        body.dark .container {
+            background: #222436;
+            box-shadow: 0 4px 32px #0008;
+        }
+        body.dark .theme-btn,
+        body.dark .mode-btn,
+        body.dark .level-btn {
+            background: #0D0F1A;
+            color: #F5F1E9;
+        }
+        body.dark .theme-btn.active,
+        body.dark .mode-btn.active,
+        body.dark .level-btn.active {
+            background: #BFA46F;
+            color: #fff;
+        }
+        body.dark .cell {
+            background: #0D0F1A;
+            color: #F5F1E9;
+        }
+        body.dark .cell:hover:enabled {
+            background: #BFA46F;
+            color: #fff;
+        }
+        body.dark .cell.winner {
+            background: #BFA46F !important;
+            color: #fff !important;
+        }
+        body.dark .reset-btn {
+            background: #BFA46F;
+            color: #fff;
+        }
+        /* RESPONSYWNOŚĆ */
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100vw;
+                margin: 0 auto;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 6vw 0 10vw 0;
+            }
+            .board-wrap {
+                width: 95vw;
+                max-width: 95vw;
+                min-width: 210px;
+            }
+            .board {
+                gap: 3vw;
+            }
+            .cell {
+                font-size: 2em;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.3em;
+            }
+            #message {
+                font-size: 1em;
+            }
+            .theme-btn, .mode-btn, .level-btn, .reset-btn {
+                font-size: 1em;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kółko i Krzyżyk</h1>
+        <div class="theme-switcher">
+            <button class="theme-btn active" id="lightBtn" onclick="setTheme('light')" title="Jasny motyw">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRDkzQiIgd2lkdGg9IjI0cHgiIGhlaWdodD0iMjRweCI+PHBhdGggZD0iTTYuNzYgNC44NGwtMS44LTEuNzktMS40MiAxLjQxIDEuNzkgMS44IDEuNDMtMS40MnptMTAuNDggMGwxLjc5LTEuNzktMS40Mi0xLjQyLTEuOCAxLjc5IDEuNDMgMS40MnpNMTIgNGExIDEgMCAwIDAtMSAxdjJhMSAxIDAgMCAwIDIgMFY1YTEgMSAwIDAgMC0xLTF6bTYgOGExIDEgMCAwIDAtMS0xaC0yYTEgMSAwIDAgMCAwIDJoMmExIDEgMCAwIDAgMS0xem0tNiA2YTEgMSAwIDAgMCAxLTF2LTJhMSAxIDAgMCAwLTIgMHYyYTEgMSAwIDAgMCAxIDF6bS02LTZhMSAxIDAgMCAwLTEgMUg1YTEgMSAwIDAgMCAwLTJoMmExIDEgMCAwIDAgMSAxem05LjI0IDMuNzZsMS44IDEuNzkgMS40Mi0xLjQxLTEuNzktMS44LTEuNDMgMS40MnptLTEwLjQ4IDBsLTEuNzkgMS43OSAxLjQyIDEuNDIgMS44LTEuNzktMS40My0xLjQyek0xMiA4YTQgNCAwIDEgMCAwIDggNCA0IDAgMCAwIDAtOHoiLz48L3N2Zz4=" alt="Słońce">
+            </button>
+            <button class="theme-btn" id="darkBtn" onclick="setTheme('dark')" title="Ciemny motyw">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0Y1RjFFOSIgd2lkdGg9IjI0cHgiIGhlaWdodD0iMjRweCI+PHBhdGggZD0iTTIxIDEyLjc5QTkgOSAwIDAgMSAxMS4yMSAzYTcgNyAwIDEgMCA5Ljc5IDkuNzl6Ii8+PC9zdmc+" alt="Księżyc">
+            </button>
+        </div>
+        <div style="text-align:center;">
+            <button class="mode-btn active" id="humanBtn" onclick="setMode('human')">Gracz vs Gracz</button>
+            <button class="mode-btn" id="aiBtn" onclick="setMode('ai')">Gracz vs Komputer</button>
+        </div>
+        <div style="text-align:center;" id="levelDiv" hidden>
+            <button class="level-btn active" id="easyBtn" onclick="setLevel('easy')">Łatwy</button>
+            <button class="level-btn" id="mediumBtn" onclick="setLevel('medium')">Średni</button>
+            <button class="level-btn" id="hardBtn" onclick="setLevel('hard')">Trudny</button>
+        </div>
+        <div id="message">Tura gracza: X</div>
+        <div class="board-wrap">
+            <div class="board" id="board"></div>
+        </div>
+        <button class="reset-btn" onclick="resetGame()">Resetuj</button>
+    </div>
+    <script>
+        let board = Array(9).fill("");
+        let currentPlayer = "X";
+        let winner = null;
+        let mode = "human";
+        let aiLevel = "easy";
+
+        function renderBoard() {
+            const boardDiv = document.getElementById("board");
+            boardDiv.innerHTML = "";
+            for (let i = 0; i < 9; i++) {
+                const btn = document.createElement("button");
+                btn.className = "cell";
+                btn.id = "cell" + i;
+                btn.disabled = !!board[i] || winner;
+                btn.innerText = board[i];
+                btn.onclick = () => cellClick(i);
+                boardDiv.appendChild(btn);
+            }
+        }
+
+        function cellClick(idx) {
+            if (board[idx] || winner) return;
+            board[idx] = currentPlayer;
+            renderBoard();
+            let winLine = checkWinner();
+            if (winLine) {
+                winner = currentPlayer;
+                winLine.forEach(i => document.getElementById("cell"+i).classList.add("winner"));
+                document.getElementById("message").innerText = `Wygrał ${currentPlayer}!`;
+            } else if (board.every(x => x)) {
+                document.getElementById("message").innerText = "Remis!";
+            } else {
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                document.getElementById("message").innerText = `Tura gracza: ${currentPlayer}`;
+                if (mode === "ai" && currentPlayer === "O" && !winner) {
+                    setTimeout(computerMove, 500);
+                }
+            }
+        }
+
+        function computerMove() {
+            if (aiLevel === "easy") {
+                computerMoveEasy();
+            } else if (aiLevel === "medium") {
+                computerMoveMedium();
+            } else {
+                computerMoveHard();
+            }
+        }
+
+        function computerMoveEasy() {
+            let empty = [];
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) empty.push(i);
+            }
+            if (empty.length && !winner) {
+                let idx = empty[Math.floor(Math.random() * empty.length)];
+                board[idx] = "O";
+                renderBoard();
+                let winLine = checkWinner();
+                if (winLine) {
+                    winner = "O";
+                    winLine.forEach(i => document.getElementById("cell"+i).classList.add("winner"));
+                    document.getElementById("message").innerText = "Wygrał O!";
+                } else if (board.every(x => x)) {
+                    document.getElementById("message").innerText = "Remis!";
+                } else {
+                    currentPlayer = "X";
+                    document.getElementById("message").innerText = "Tura gracza: X";
+                }
+            }
+        }
+
+        function computerMoveMedium() {
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) {
+                    board[i] = "O";
+                    if (checkWinner()) {
+                        renderBoard();
+                        let winLine = checkWinner();
+                        winner = "O";
+                        winLine.forEach(j => document.getElementById("cell"+j).classList.add("winner"));
+                        document.getElementById("message").innerText = "Wygrał O!";
+                        return;
+                    }
+                    board[i] = "";
+                }
+            }
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) {
+                    board[i] = "X";
+                    if (checkWinner()) {
+                        board[i] = "O";
+                        renderBoard();
+                        currentPlayer = "X";
+                        document.getElementById("message").innerText = "Tura gracza: X";
+                        return;
+                    }
+                    board[i] = "";
+                }
+            }
+            computerMoveEasy();
+        }
+
+        function computerMoveHard() {
+            let bestScore = -Infinity;
+            let move = null;
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) {
+                    board[i] = "O";
+                    let score = minimax(board, 0, false);
+                    board[i] = "";
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = i;
+                    }
+                }
+            }
+            if (move !== null) {
+                board[move] = "O";
+                renderBoard();
+                let winLine = checkWinner();
+                if (winLine) {
+                    winner = "O";
+                    winLine.forEach(i => document.getElementById("cell"+i).classList.add("winner"));
+                    document.getElementById("message").innerText = "Wygrał O!";
+                } else if (board.every(x => x)) {
+                    document.getElementById("message").innerText = "Remis!";
+                } else {
+                    currentPlayer = "X";
+                    document.getElementById("message").innerText = "Tura gracza: X";
+                }
+            }
+        }
+
+        function minimax(b, depth, isMax) {
+            let winLine = checkWinnerBoard(b);
+            if (winLine && b[winLine[0]] === "O") return 10 - depth;
+            if (winLine && b[winLine[0]] === "X") return depth - 10;
+            if (b.every(x => x)) return 0;
+
+            if (isMax) {
+                let best = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!b[i]) {
+                        b[i] = "O";
+                        best = Math.max(best, minimax(b, depth+1, false));
+                        b[i] = "";
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!b[i]) {
+                        b[i] = "X";
+                        best = Math.min(best, minimax(b, depth+1, true));
+                        b[i] = "";
+                    }
+                }
+                return best;
+            }
+        }
+
+        function checkWinner() {
+            return checkWinnerBoard(board);
+        }
+
+        function checkWinnerBoard(b) {
+            const wins = [
+                [0,1,2],[3,4,5],[6,7,8],
+                [0,3,6],[1,4,7],[2,5,8],
+                [0,4,8],[2,4,6]
+            ];
+            for (const line of wins) {
+                const [a,b1,c] = line;
+                if (b[a] && b[a] === b[b1] && b[a] === b[c]) {
+                    return line;
+                }
+            }
+            return null;
+        }
+
+        function resetGame() {
+            board = Array(9).fill("");
+            currentPlayer = "X";
+            winner = null;
+            document.getElementById("message").innerText = "Tura gracza: X";
+            renderBoard();
+        }
+
+        function setTheme(theme) {
+            if (theme === "dark") {
+                document.body.classList.add("dark");
+                document.getElementById("darkBtn").classList.add("active");
+                document.getElementById("lightBtn").classList.remove("active");
+            } else {
+                document.body.classList.remove("dark");
+                document.getElementById("lightBtn").classList.add("active");
+                document.getElementById("darkBtn").classList.remove("active");
+            }
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.getElementById("humanBtn").classList.toggle("active", mode === "human");
+            document.getElementById("aiBtn").classList.toggle("active", mode === "ai");
+            document.getElementById("levelDiv").hidden = (mode !== "ai");
+            resetGame();
+        }
+
+        function setLevel(level) {
+            aiLevel = level;
+            document.getElementById("easyBtn").classList.toggle("active", aiLevel === "easy");
+            document.getElementById("mediumBtn").classList.toggle("active", aiLevel === "medium");
+            document.getElementById("hardBtn").classList.toggle("active", aiLevel === "hard");
+            resetGame();
+        }
+
+        // Inicjalizacja
+        renderBoard();
+    </script>
+</body>
+</html>
